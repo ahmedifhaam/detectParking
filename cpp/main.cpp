@@ -85,20 +85,26 @@ int main(int argc, char** argv)
 		
         cout << ConfigLoad::options["DETECT_PARKING"];
         printf("\n");
-        
-		if (ConfigLoad::options["DETECT_PARKING"] == "true")
-		{
+
+        //detect the parking with the least number
+        int parkId = -1;
+
+		//if (ConfigLoad::options["DETECT_PARKING"] == "true")
+		//{
 			for (Parking& park : parking_data)
 			{
 				// Check if parking is occupied
 				roi = frame_blur(park.getBoundingRect());
 				cv::Laplacian(roi, laplacian, CV_64F);								
 				delta = cv::mean(cv::abs(laplacian), park.getMask());
-                park.setStatus( delta[0] < atof(ConfigLoad::options["PARK_LAPLACIAN_TH"].c_str()) );
+                park.setStatus( delta[0] <2 );
+                if(park.getStatus() && parkId<0) parkId = park.getId();
 				printf("| %d: d=%-5.1f", park.getId(), delta[0]);
 			}
 			printf("\n");
-		}
+			if(parkId>=0)printf("Parking of choice is : %d",parkId);
+			printf("\n");
+		//}
 
 		// Parking Overlay
 		for (Parking park : parking_data)
